@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2026학년도 1학기 신간도서 안내 – 경원초등학교 도서관</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', sans-serif;
+      background: #FFF8F0;
+      color: #333;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: linear-gradient(135deg, #29B6F6 0%, #0277BD 100%);
+      color: white;
+      padding: 20px 24px;
+      box-shadow: 0 3px 12px rgba(2,119,189,0.3);
+    }
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+    .logo {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid rgba(255,255,255,0.85);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      flex-shrink: 0;
+    }
+    .header-text h1 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      line-height: 1.3;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    }
+    .header-text p {
+      font-size: 0.9rem;
+      opacity: 0.88;
+      margin-top: 3px;
+    }
+
+    /* ── Filters ── */
+    .filters {
+      background: white;
+      border-bottom: 2px solid #E3F2FD;
+      padding: 14px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .filters-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* 구분 버튼 */
+    .btn-group { display: flex; gap: 6px; }
+    .btn-group button {
+      padding: 7px 18px;
+      border: 2px solid #0288D1;
+      border-radius: 22px;
+      background: white;
+      color: #0288D1;
+      font-size: 0.875rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s;
+    }
+    .btn-group button.active,
+    .btn-group button:hover {
+      background: #0288D1;
+      color: white;
+    }
+
+    /* 분야 드롭다운 */
+    select {
+      padding: 7px 14px;
+      border: 2px solid #ddd;
+      border-radius: 22px;
+      font-size: 0.875rem;
+      background: white;
+      color: #333;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.18s;
+      max-width: 180px;
+    }
+    select:focus { border-color: #0288D1; }
+
+    /* 검색 */
+    .search-wrap { flex: 1; min-width: 160px; position: relative; }
+    .search-wrap input {
+      width: 100%;
+      padding: 7px 14px 7px 36px;
+      border: 2px solid #ddd;
+      border-radius: 22px;
+      font-size: 0.875rem;
+      outline: none;
+      transition: border-color 0.18s;
+    }
+    .search-wrap input:focus { border-color: #0288D1; }
+    .search-wrap::before {
+      content: '🔍';
+      position: absolute;
+      left: 11px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.85rem;
+      pointer-events: none;
+    }
+
+    /* 카운트 */
+    .count-bar {
+      max-width: 1200px;
+      margin: 14px auto 0;
+      padding: 0 24px;
+      font-size: 0.85rem;
+      color: #777;
+    }
+    .count-bar strong { color: #0288D1; }
+
+    /* ── Grid ── */
+    .grid {
+      max-width: 1200px;
+      margin: 14px auto 32px;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+      gap: 18px;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: 1px solid #F0F0F0;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 24px rgba(2,119,189,0.15);
+    }
+
+    .card-cover-wrap {
+      width: 100%;
+      aspect-ratio: 3/4;
+      overflow: hidden;
+      background: #EEEEEE;
+    }
+    .card-cover-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.3s;
+    }
+    .card:hover .card-cover-wrap img { transform: scale(1.04); }
+
+    .card-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(145deg, #E3F2FD, #BBDEFB);
+      gap: 6px;
+    }
+    .card-placeholder span { font-size: 2.2rem; }
+    .card-placeholder small { font-size: 0.65rem; color: #90CAF9; }
+
+    .card-body { padding: 10px 11px 12px; }
+    .card-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      line-height: 1.35;
+      margin-bottom: 5px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      word-break: keep-all;
+    }
+    .card-author {
+      font-size: 0.74rem;
+      color: #666;
+      margin-bottom: 3px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .card-publisher {
+      font-size: 0.7rem;
+      color: #999;
+      margin-bottom: 7px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .tag {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 10px;
+      font-size: 0.68rem;
+      font-weight: 700;
+    }
+    .tag-domestic  { background: #E8F5E9; color: #2E7D32; }
+    .tag-foreign   { background: #FFF3E0; color: #E65100; }
+    .tag-subject   { background: #E3F2FD; color: #1565C0; }
+
+    /* ── No results ── */
+    .no-results {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 70px 20px;
+      color: #aaa;
+    }
+    .no-results .icon { font-size: 3.5rem; margin-bottom: 14px; }
+    .no-results p { font-size: 1rem; }
+
+    /* ── Modal ── */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .overlay.open { display: flex; }
+
+    .modal {
+      background: white;
+      border-radius: 18px;
+      max-width: 520px;
+      width: 100%;
+      max-height: 92vh;
+      overflow-y: auto;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.28);
+      animation: modalIn 0.22s ease;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(16px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .modal-top {
+      padding: 16px 20px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #F0F0F0;
+    }
+    .btn-close {
+      background: #F5F5F5;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #666;
+      transition: background 0.15s;
+    }
+    .btn-close:hover { background: #EEE; color: #333; }
+
+    .modal-body {
+      display: flex;
+      gap: 20px;
+      padding: 20px;
+    }
+    .modal-img {
+      width: 130px;
+      flex-shrink: 0;
+    }
+    .modal-img img {
+      width: 100%;
+      aspect-ratio: 3/4;
+      object-fit: cover;
+      border-radius: 10px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+      display: block;
+    }
+    .modal-img .ph {
+      width: 100%;
+      aspect-ratio: 3/4;
+      border-radius: 10px;
+      background: linear-gradient(145deg, #E3F2FD, #BBDEFB);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+    }
+
+    .modal-info { flex: 1; min-width: 0; }
+    .modal-info h2 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      line-height: 1.4;
+      margin-bottom: 4px;
+      word-break: keep-all;
+    }
+    .modal-subtitle {
+      font-size: 0.82rem;
+      color: #777;
+      margin-bottom: 14px;
+      line-height: 1.4;
+    }
+
+    .info-rows { display: flex; flex-direction: column; gap: 6px; }
+    .info-row { display: flex; gap: 8px; font-size: 0.83rem; line-height: 1.4; }
+    .info-row .lbl { color: #AAA; flex-shrink: 0; width: 44px; font-size: 0.78rem; padding-top: 1px; }
+    .info-row .val { color: #333; word-break: break-word; }
+
+
+    .btn-search {
+      display: inline-block;
+      margin-top: 14px;
+      padding: 9px 18px;
+      background: linear-gradient(135deg, #29B6F6, #0277BD);
+      color: white;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      text-decoration: none;
+      transition: opacity 0.18s, transform 0.18s;
+    }
+    .btn-search:hover { opacity: 0.88; transform: translateY(-1px); }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 28px;
+      color: #BCC;
+      font-size: 0.8rem;
+      border-top: 1px solid #EEE;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      .header-text h1 { font-size: 1.15rem; }
+      .logo { width: 52px; height: 52px; }
+      .filters-inner { gap: 8px; }
+      .btn-group button { padding: 6px 13px; font-size: 0.82rem; }
+      .grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; padding: 0 14px; }
+      .modal-body { flex-direction: column; align-items: center; }
+      .modal-img { width: 110px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <img src="경원초 로고.jpg" alt="경원초등학교 로고" class="logo"
+         onerror="this.style.display='none'">
+    <div class="header-text">
+      <h1>📚 2026학년도 1학기 신간도서 안내</h1>
+      <p>경원초등학교 도서관</p>
+    </div>
+  </div>
+</header>
+
+<div class="filters">
+  <div class="filters-inner">
+    <div class="btn-group" id="typeGroup">
+      <button class="active" data-type="전체">전체</button>
+      <button data-type="국내도서">국내도서</button>
+      <button data-type="외국도서">외국도서</button>
+    </div>
+    <select id="subjectSel">
+      <option value="">분야 전체</option>
+    </select>
+    <div class="search-wrap">
+      <input type="text" id="searchInput" placeholder="서명, 저자명 검색…">
+    </div>
+  </div>
+</div>
+
+<div class="count-bar" id="countBar"></div>
+<div class="grid" id="grid"></div>
+
+<!-- Modal -->
+<div class="overlay" id="overlay">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-top">
+      <span class="tag" id="mType"></span>
+      <button class="btn-close" id="closeBtn" aria-label="닫기">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-img" id="mImg"></div>
+      <div class="modal-info">
+        <h2 id="mTitle"></h2>
+        <p class="modal-subtitle" id="mSubtitle"></p>
+        <div class="info-rows">
+          <div class="info-row"><span class="lbl">저자</span><span class="val" id="mAuthor"></span></div>
+          <div class="info-row"><span class="lbl">출판사</span><span class="val" id="mPub"></span></div>
+          <div class="info-row"><span class="lbl">ISBN</span><span class="val" id="mISBN"></span></div>
+          <div class="info-row"><span class="lbl">출간</span><span class="val" id="mYear"></span></div>
+          <div class="info-row"><span class="lbl">분야</span><span class="val" id="mSubject"></span></div>
+        </div>
+        <a id="mSearchLink" href="#" target="_blank" rel="noopener noreferrer" class="btn-search">
+          📚 소장 도서 검색
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>2026 경원초등학교 도서관 · 신간도서 안내</footer>
+
+<script src="books.js"></script>
+<script>
+  'use strict';
+
+  let allBooks = [];
+  let activeType = '전체';
+  let activeSub = '';
+  let query = '';
+
+  /* ── 유틸 ── */
+  function esc(s) {
+    if (!s && s !== 0) return '';
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  const FORMAT_MAP = {
+    'hardcover': '양장본',
+    'paperback': '문고판',
+    'boxed set': '박스 세트',
+    'board book': '보드북',
+  };
+
+  // 표시용: 알려진 형식 표기만 한글로 변환
+  function displayTitle(title) {
+    if (!title) return '';
+    return title.replace(/\(([^)]+)\)/g, (match, inner) => {
+      const key = inner.trim().toLowerCase();
+      return FORMAT_MAP[key] ? `(${FORMAT_MAP[key]})` : match;
+    });
+  }
+
+  // 검색용: 괄호(영문/한글) + 콜론 부제 제거
+  function searchTitle(title) {
+    if (!title) return '';
+    return title
+      .replace(/\s*\([^)]*\)/g, '')   // 모든 괄호 제거: (Hardcover), (에디션), (양장) 등
+      .replace(/\s*[：:].*/s, '')      // 콜론 이후 부제 제거: ': 경기·인천', ': 영웅편' 등
+      .trim();
+  }
+
+  function level1(subject) {
+    if (!subject) return '';
+    const parts = subject.split('>');
+    // parts[0] = '국내도서' or '외국도서', parts[1] = 실제 분야
+    return parts.length >= 2 ? parts[1].trim() : parts[0].trim();
+  }
+
+  /* ── 데이터 로드 ── */
+  function loadBooks() {
+    if (typeof BOOKS_DATA !== 'undefined') {
+      allBooks = BOOKS_DATA;
+      buildSubjectOptions();
+      render();
+    } else {
+      document.getElementById('grid').innerHTML =
+        '<div class="no-results"><div class="icon">⚠️</div><p>books.js 로드 실패</p></div>';
+    }
+  }
+
+  function buildSubjectOptions() {
+    const subjects = [...new Set(
+      allBooks.map(b => level1(b.분야)).filter(Boolean)
+    )].sort((a, b) => a.localeCompare(b, 'ko'));
+
+    const sel = document.getElementById('subjectSel');
+    subjects.forEach(s => {
+      const o = document.createElement('option');
+      o.value = s; o.textContent = s;
+      sel.appendChild(o);
+    });
+  }
+
+  /* ── 필터링 ── */
+  function filtered() {
+    const q = query.toLowerCase();
+    return allBooks.filter(b => {
+      if (activeType !== '전체' && b.구분 !== activeType) return false;
+      if (activeSub && level1(b.분야) !== activeSub) return false;
+      if (q) {
+        return (b.서명 || '').toLowerCase().includes(q) ||
+               (b.저자명 || '').toLowerCase().includes(q);
+      }
+      return true;
+    });
+  }
+
+  /* ── 렌더 ── */
+  function render() {
+    const books = filtered();
+    const grid = document.getElementById('grid');
+    document.getElementById('countBar').innerHTML =
+      `총 <strong>${books.length}</strong>권`;
+
+    if (!books.length) {
+      grid.innerHTML = `
+        <div class="no-results">
+          <div class="icon">📭</div>
+          <p>검색 결과가 없습니다.</p>
+        </div>`;
+      return;
+    }
+
+    grid.innerHTML = books.map(b => {
+      const sub = level1(b.분야);
+      const typeTag = b.구분 === '국내도서'
+        ? `<span class="tag tag-domestic">국내</span>`
+        : `<span class="tag tag-foreign">외국</span>`;
+      const subTag = sub ? `<span class="tag tag-subject">${esc(sub)}</span>` : '';
+      const coverHtml = b.cover_url
+        ? `<img src="${esc(b.cover_url)}" alt="${esc(b.서명)}" loading="lazy">`
+        : `<div class="card-placeholder"><span>📖</span></div>`;
+
+      return `
+        <div class="card" role="button" tabindex="0"
+             onclick="openModal(${esc(b.순번)})"
+             onkeydown="if(event.key==='Enter')openModal(${esc(b.순번)})">
+          <div class="card-cover-wrap">${coverHtml}</div>
+          <div class="card-body">
+            <div class="card-title">${esc(displayTitle(b.서명))}</div>
+            <div class="card-author">${esc(b.저자명)}</div>
+            <div class="card-publisher">${esc(b.출판사)}</div>
+            <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:2px">
+              ${typeTag}${subTag}
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  /* ── 모달 ── */
+  function openModal(num) {
+    const b = allBooks.find(x => x.순번 === num);
+    if (!b) return;
+
+    const typeClass = b.구분 === '국내도서' ? 'tag-domestic' : 'tag-foreign';
+    document.getElementById('mType').className = `tag ${typeClass}`;
+    document.getElementById('mType').textContent = b.구분;
+    document.getElementById('mTitle').textContent = displayTitle(b.서명);
+    document.getElementById('mSubtitle').textContent = b.부제 || '';
+    document.getElementById('mAuthor').textContent = b.저자명 || '-';
+    document.getElementById('mPub').textContent = b.출판사 || '-';
+    document.getElementById('mISBN').textContent = b.ISBN || '-';
+    document.getElementById('mYear').textContent = b.출간연도 ? b.출간연도 + '년' : '-';
+    document.getElementById('mSubject').textContent = b.분야 || '-';
+
+    document.getElementById('mImg').innerHTML = b.cover_url
+      ? `<img src="${esc(b.cover_url)}" alt="${esc(b.서명)}">`
+      : `<div class="ph">📖</div>`;
+
+    const searchUrl = 'https://read365.edunet.net/PureScreen/SchoolSearchResult'
+      + '?searchKeyword=' + encodeURIComponent(searchTitle(b.서명))
+      + '&provCode=E10&neisCode=E100001951&schoolName=' + encodeURIComponent('인천경원초등학교');
+    document.getElementById('mSearchLink').href = searchUrl;
+
+    document.getElementById('overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    document.getElementById('overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  /* ── 이벤트 ── */
+  document.getElementById('typeGroup').addEventListener('click', e => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    document.querySelectorAll('#typeGroup button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeType = btn.dataset.type;
+    render();
+  });
+
+  document.getElementById('subjectSel').addEventListener('change', e => {
+    activeSub = e.target.value;
+    render();
+  });
+
+  document.getElementById('searchInput').addEventListener('input', e => {
+    query = e.target.value;
+    render();
+  });
+
+  document.getElementById('closeBtn').addEventListener('click', closeModal);
+  document.getElementById('overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('overlay')) closeModal();
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  loadBooks();
+</script>
+</body>
+</html>
