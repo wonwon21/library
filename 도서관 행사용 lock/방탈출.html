@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>도서관 방탈출</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.7.0/dist/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic',sans-serif;background:#eef1f4;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.wrap{width:100%;height:100vh;max-width:1180px;background:#fff;display:flex;flex-direction:column;position:relative;}
+.screen{display:none;width:100%;height:100%;}
+.screen.active{display:flex;}
+.nb{background:none;border:1px solid #d0d0cc;border-radius:8px;padding:9px 16px;font-size:15px;font-weight:500;cursor:pointer;color:#333;transition:background .12s,transform .1s;}
+.nb:hover{background:#f5f5f0;}
+.nb:active{transform:scale(.96);}
+.pb{background:#185FA5;border:none;border-radius:12px;padding:16px 22px;font-size:18px;font-weight:600;cursor:pointer;color:#fff;transition:background .12s,transform .1s;}
+.pb:hover{background:#0C447C;}
+.pb:active{transform:scale(.97);}
+.pb:disabled{background:#b8c2cc;cursor:not-allowed;}
+.inp{width:100%;border:1px solid #d0d0cc;border-radius:8px;padding:11px 14px;font-size:16px;color:#222;background:#fff;}
+.inp:focus{outline:none;border-color:#378ADD;box-shadow:0 0 0 3px rgba(55,138,221,.15);}
+.card{background:#fff;border:1px solid #e0e0da;border-radius:16px;}
+.prow{display:grid;grid-template-columns:auto 1.8fr .9fr .9fr auto;gap:8px;align-items:center;}
+.prow input{text-align:center;}
+.swatch{width:14px;height:14px;border-radius:4px;display:inline-block;flex-shrink:0;}
+.wheel-box{position:relative;width:min(55vh,400px);height:min(55vh,400px);flex-shrink:0;}
+.pointer{position:absolute;top:-6px;left:50%;transform:translateX(-50%);z-index:5;width:0;height:0;border-left:18px solid transparent;border-right:18px solid transparent;border-top:30px solid #E24B4A;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3));}
+.wheel{width:100%;height:100%;border-radius:50%;border:8px solid #fff;box-shadow:0 0 0 4px #d8dde2,0 8px 24px rgba(0,0,0,.18);position:relative;}
+.wheel-hub{position:absolute;top:50%;left:50%;width:54px;height:54px;border-radius:50%;background:#fff;transform:translate(-50%,-50%);z-index:4;box-shadow:0 2px 8px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;}
+.wlabel{position:absolute;top:50%;left:50%;transform-origin:0 0;z-index:3;pointer-events:none;}
+.wlabel span{position:absolute;transform:translate(-50%,-50%);font-size:14px;font-weight:700;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.4);white-space:nowrap;}
+.stock-table{width:100%;border-collapse:collapse;font-size:14px;}
+.stock-table th{background:#f5f5f0;padding:7px 10px;font-weight:600;color:#555;text-align:left;border-bottom:2px solid #e0e0da;}
+.stock-table td{padding:6px 10px;border-bottom:1px solid #f0f0ea;}
+.stock-table tr:last-child td{border-bottom:none;}
+.log-table{width:100%;border-collapse:collapse;font-size:13px;}
+.log-table th{background:#f5f5f0;padding:6px 10px;font-weight:600;color:#555;border-bottom:2px solid #e0e0da;text-align:left;}
+.log-table td{padding:6px 10px;border-bottom:1px solid #f0f0ea;}
+.log-table tr:last-child td{border-bottom:none;}
+.del-row-btn{background:none;border:none;cursor:pointer;color:#E24B4A;font-size:18px;padding:4px;line-height:1;border-radius:4px;}
+.del-row-btn:hover{background:#FEE2E2;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- 홈 -->
+<div id="home" class="screen active" style="flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:1.5rem;padding:2rem;">
+  <i class="ti ti-books" style="font-size:64px;color:#378ADD;"></i>
+  <div>
+    <p style="font-size:34px;font-weight:700;color:#111;">도서관 방탈출 🔓</p>
+    <p style="font-size:16px;color:#888;margin-top:8px;">7권의 책 제목 첫 글자를 모아 암호를 풀어라!</p>
+  </div>
+  <div style="display:flex;gap:14px;margin-top:.5rem;">
+    <button class="pb" onclick="goTo('student');initSt()"><i class="ti ti-keyhole"></i>  암호 입력</button>
+    <button class="nb" onclick="goTo('admin-login')"><i class="ti ti-settings"></i>  선생님 설정</button>
+  </div>
+</div>
+
+<!-- 관리자 로그인 -->
+<div id="admin-login" class="screen" style="flex-direction:column;align-items:center;justify-content:center;gap:1rem;padding:2rem;">
+  <div class="card" style="padding:2rem;display:flex;flex-direction:column;gap:14px;width:100%;max-width:360px;">
+    <p style="font-size:19px;font-weight:600;color:#111;">선생님 로그인</p>
+    <input id="apw" type="password" class="inp" placeholder="관리자 비밀번호" onkeydown="if(event.key==='Enter')tryAdmin()">
+    <p id="aerr" style="font-size:13px;color:#E24B4A;display:none;">비밀번호가 틀렸습니다.</p>
+    <div style="display:flex;gap:10px;">
+      <button class="nb" style="flex:1;" onclick="goTo('home')">취소</button>
+      <button class="pb" style="flex:2;padding:13px;" onclick="tryAdmin()">입장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 관리자 패널 -->
+<div id="admin-panel" class="screen" style="flex-direction:column;padding:1.5rem 2rem;gap:1rem;overflow-y:auto;">
+  <div style="display:flex;align-items:center;justify-content:space-between;">
+    <p style="font-size:21px;font-weight:700;color:#111;"><i class="ti ti-settings"></i> 선생님 설정</p>
+    <button class="nb" onclick="goTo('home')"><i class="ti ti-home"></i> 홈으로</button>
+  </div>
+
+  <div class="card" style="padding:1.25rem;display:flex;flex-direction:column;gap:10px;">
+    <p style="font-size:15px;font-weight:600;color:#111;">🔑 정답 암호</p>
+    <input id="ans-inp" class="inp" placeholder="예: 나의 다정한 친구">
+    <p style="font-size:12px;color:#999;">띄어쓰기는 무시되고 비교됩니다.</p>
+  </div>
+
+  <div class="card" style="padding:1.25rem;display:flex;flex-direction:column;gap:12px;">
+    <p style="font-size:15px;font-weight:600;color:#111;">🎁 룰렛 상품</p>
+    <div class="prow" style="font-size:12px;color:#999;font-weight:600;">
+      <div></div><div style="text-align:left;">상품명</div><div>확률(%)</div><div>남은 수량</div><div></div>
+    </div>
+    <div id="prod-rows" style="display:flex;flex-direction:column;gap:8px;"></div>
+    <button class="nb" style="align-self:flex-start;font-size:13px;" onclick="addProdRow()">
+      <i class="ti ti-plus"></i> 상품 추가
+    </button>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding-top:6px;border-top:1px dashed #e0e0da;">
+      <span style="font-size:14px;color:#555;">확률 합계</span>
+      <span id="psum" style="font-size:18px;font-weight:700;">0%</span>
+    </div>
+    <p id="perr" style="font-size:13px;color:#E24B4A;display:none;">확률의 합이 100%가 되어야 저장할 수 있어요.</p>
+  </div>
+
+  <button class="pb" onclick="saveAdmin()"><i class="ti ti-device-floppy"></i>  저장하기</button>
+  <p id="smsg" style="font-size:14px;color:#3B6D11;text-align:center;display:none;">✓ 저장 완료!</p>
+
+  <div class="card" style="padding:1.25rem;display:flex;flex-direction:column;gap:10px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <p style="font-size:15px;font-weight:600;color:#111;">📋 당첨 기록</p>
+      <button class="nb" style="font-size:12px;color:#A32D2D;border-color:#F09595;" onclick="clearLogConfirm()">기록 초기화</button>
+    </div>
+    <div id="log-wrap" style="max-height:220px;overflow-y:auto;"></div>
+  </div>
+</div>
+
+<!-- 학생 암호 입력 -->
+<div id="student" class="screen" style="flex-direction:column;align-items:center;justify-content:center;gap:1.2rem;position:relative;overflow:hidden;">
+  <div style="position:absolute;inset:0;background:url('도서관 행사용 Lock 배경화면.jpg') center/cover no-repeat;z-index:0;"></div>
+  <div style="position:absolute;inset:0;background:rgba(0,0,0,0.38);z-index:1;"></div>
+  <button class="nb" style="position:absolute;top:1.5rem;left:1.5rem;z-index:3;background:rgba(255,255,255,0.85);" onclick="confirmHome()"><i class="ti ti-home"></i></button>
+  <div style="position:relative;z-index:2;background:rgba(255,255,255,0.93);border-radius:24px;padding:2.2rem 3rem;display:flex;flex-direction:column;align-items:center;gap:1.1rem;box-shadow:0 8px 32px rgba(0,0,0,0.28);max-width:540px;width:90%;">
+    <i class="ti ti-lock" style="font-size:48px;color:#378ADD;"></i>
+    <p style="font-size:25px;font-weight:700;color:#111;">암호를 입력하세요</p>
+    <input id="ans-field" class="inp" style="font-size:24px;text-align:center;font-weight:700;letter-spacing:5px;padding:15px;" placeholder="" onkeydown="if(event.key==='Enter')checkAns()">
+    <p style="font-size:13px;color:#888;">7권의 책 제목 첫 글자 · 띄어쓰기 자동 무시</p>
+    <p id="st-err" style="font-size:15px;color:#E24B4A;display:none;">앗, 틀렸어요! 다시 생각해볼까요? 🤔</p>
+    <p id="wrong-count" style="font-size:13px;color:#E24B4A;display:none;"></p>
+    <button class="pb" style="min-width:200px;font-size:18px;" onclick="checkAns()"><i class="ti ti-check"></i>  확인</button>
+  </div>
+</div>
+
+<!-- 해제 성공 -->
+<div id="unlocked" class="screen" style="flex-direction:column;align-items:center;justify-content:center;gap:1.6rem;position:relative;overflow:hidden;text-align:center;">
+  <div style="position:absolute;inset:0;background:url('도서관 행사용 Lock 배경화면.jpg') center/cover no-repeat;z-index:0;"></div>
+  <div style="position:absolute;inset:0;background:rgba(0,0,0,0.52);z-index:1;"></div>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:1.4rem;">
+    <div style="background:rgba(255,255,255,0.12);border:2px solid rgba(255,255,255,0.3);border-radius:28px;padding:2.5rem 3.5rem;backdrop-filter:blur(8px);">
+      <i class="ti ti-lock-open" style="font-size:80px;color:#FBBF24;filter:drop-shadow(0 0 16px rgba(251,191,36,.6));"></i>
+      <p style="font-size:38px;font-weight:800;color:#fff;margin-top:.6rem;text-shadow:0 2px 12px rgba(0,0,0,.5);">자물쇠가 열렸다!</p>
+      <p style="font-size:22px;color:#FBBF24;font-weight:700;margin-top:.3rem;">🎉 탈출 성공! 🎉</p>
+      <p style="font-size:16px;color:rgba(255,255,255,.8);margin-top:.8rem;">행운의 룰렛을 돌릴 시간이에요.</p>
+    </div>
+    <button class="pb" style="min-width:260px;font-size:22px;padding:18px 28px;background:linear-gradient(135deg,#FBBF24,#F59E0B);color:#111;font-weight:800;box-shadow:0 4px 20px rgba(251,191,36,.5);" onclick="spinCount=1;goTo('roulette');drawWheel()">
+      <i class="ti ti-confetti"></i>  룰렛 돌리러 가기
+    </button>
+  </div>
+</div>
+
+<!-- 룰렛 -->
+<div id="roulette" class="screen" style="align-items:center;justify-content:center;gap:2.5rem;padding:1.5rem 2rem;">
+  <button class="nb" style="position:absolute;top:1.2rem;left:1.2rem;" onclick="confirmHome()"><i class="ti ti-home"></i></button>
+  <div class="wheel-box">
+    <div class="pointer"></div>
+    <div class="wheel" id="wheel"></div>
+    <div class="wheel-hub"><i class="ti ti-gift" style="font-size:22px;color:#E24B4A;"></i></div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:1.1rem;min-width:260px;max-width:300px;">
+    <div style="text-align:center;">
+      <p style="font-size:22px;font-weight:700;color:#111;">행운의 룰렛 🎡</p>
+    </div>
+    <div id="result-box" style="min-height:80px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:#f8f9fa;border-radius:14px;padding:14px;">
+      <p style="font-size:14px;color:#888;">버튼을 눌러 돌려보세요!</p>
+    </div>
+    <button id="spin-btn" class="pb" style="font-size:18px;" onclick="spin()"><i class="ti ti-rotate-clockwise-2"></i>  돌리기</button>
+    <button id="again-btn" class="nb" style="display:none;text-align:center;" onclick="nextRound()">다음 차례 →</button>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table class="stock-table">
+        <thead><tr><th>상품</th><th style="text-align:right;">남은 수량</th></tr></thead>
+        <tbody id="stock-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</div>
+<script>
+const ADMIN_PW='1207';
+const K_ANS='esc_answer_v1', K_PROD='esc_products_v3', K_LOG='esc_log_v2';
+const PALETTE=['#F2994A','#56CCF2','#BB6BD9','#6FCF97','#F2C94C','#EB5757','#9B51E0','#219653','#2D9CDB','#E91E63'];
+const DEF_ANS='나의 다정한 친구';
+const DEF_PROD=[
+  {name:'ABC 초콜릿',prob:24,qty:10},
+  {name:'마이쮸',prob:24,qty:10},
+  {name:'사탕',prob:24,qty:10},
+  {name:'멘토스',prob:24,qty:10},
+  {name:'원하는 상품',prob:4,qty:5},
+];
+
+let activeProd=[], spinning=false, curRot=0;
+let audioCtx=null, tickTimers=[];
+let spinCount=0, wrongCount=0;
+let editRows=[];  // 관리자 편집 중인 상품 배열
+
+/* ===== 유틸 ===== */
+function goTo(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function confirmHome(){if(confirm('홈으로 돌아가시겠어요?')){goTo('home');}}
+function norm(s){return (s||'').replace(/\s+/g,'');}
+function getKST(){
+  const now=new Date();
+  const kst=new Date(now.getTime()+9*60*60*1000);
+  return String(kst.getUTCHours()).padStart(2,'0')+':'+String(kst.getUTCMinutes()).padStart(2,'0');
+}
+function palColor(i){return PALETTE[i%PALETTE.length];}
+
+/* ===== 데이터 ===== */
+function getAns(){try{return localStorage.getItem(K_ANS)||DEF_ANS;}catch(e){return DEF_ANS;}}
+function getProd(){try{const v=localStorage.getItem(K_PROD);if(v)return JSON.parse(v);}catch(e){}return JSON.parse(JSON.stringify(DEF_PROD));}
+function saveProd(p){try{localStorage.setItem(K_PROD,JSON.stringify(p));}catch(e){}}
+function getLog(){try{return JSON.parse(localStorage.getItem(K_LOG)||'[]');}catch(e){return[];}}
+function addLog(prize){
+  const log=getLog();
+  log.push({time:getKST(),prize,wrong:wrongCount});
+  try{localStorage.setItem(K_LOG,JSON.stringify(log));}catch(e){}
+}
+function clearLogConfirm(){if(confirm('기록을 모두 지울까요?')){try{localStorage.removeItem(K_LOG);}catch(e){}renderLog();}}
+
+/* ===== 효과음 ===== */
+function getAudioCtx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+
+function playBrass(freq,dur,delay=0,vol=0.38){
+  try{
+    const ctx=getAudioCtx();
+    const o=ctx.createOscillator(),g=ctx.createGain(),f=ctx.createBiquadFilter();
+    o.type='sawtooth';o.frequency.value=freq;
+    f.type='lowpass';f.frequency.value=2200;f.Q.value=1.2;
+    o.connect(f);f.connect(g);g.connect(ctx.destination);
+    const t=ctx.currentTime+delay;
+    g.gain.setValueAtTime(0,t);
+    g.gain.linearRampToValueAtTime(vol,t+0.04);
+    g.gain.setValueAtTime(vol,t+dur-0.06);
+    g.gain.linearRampToValueAtTime(0,t+dur);
+    o.start(t);o.stop(t+dur);
+  }catch(e){}
+}
+
+function playFanfare(){
+  // 브라스 화음 팡파레
+  const seq=[
+    {f:523,d:0.18,t:0},{f:659,d:0.18,t:0},{f:784,d:0.18,t:0},
+    {f:523,d:0.14,t:0.22},{f:659,d:0.14,t:0.22},{f:784,d:0.14,t:0.22},
+    {f:659,d:0.1,t:0.38},{f:784,d:0.1,t:0.38},{f:988,d:0.1,t:0.38},
+    {f:523,d:0.55,t:0.52},{f:659,d:0.55,t:0.52},{f:784,d:0.55,t:0.52},{f:1047,d:0.55,t:0.52},
+  ];
+  seq.forEach(n=>playBrass(n.f,n.d,n.t,0.4));
+}
+
+function playBuzzer(){
+  try{
+    const ctx=getAudioCtx();
+    [180,0,130,.2].forEach((f,i,a)=>{if(i%2===0){playBrass(f,.28,a[i+1],.25);}});
+  }catch(e){}
+}
+
+function playSuperFanfare(){
+  // 더 화려한 브라스 화음 (확률 가장 낮은 상품 전용)
+  [[523,.12,0],[659,.12,0],[784,.12,0],[1047,.12,0],
+   [523,.1,.16],[659,.1,.16],[784,.1,.16],[1047,.1,.16],
+   [659,.1,.3],[784,.1,.3],[988,.1,.3],[1319,.1,.3],
+   [523,.8,.46],[659,.8,.46],[784,.8,.46],[1047,.8,.46],[1319,.8,.46]
+  ].forEach(([f,d,t])=>playBrass(f,d,t,.45));
+}
+
+function showBigWin(name,color){
+  const el=document.createElement('div');
+  el.style.cssText='position:fixed;inset:0;z-index:8888;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.72);opacity:1;transition:opacity .5s;';
+  el.innerHTML=`<div style="text-align:center;">
+    <p style="font-size:20px;color:rgba(255,255,255,.85);margin-bottom:14px;letter-spacing:2px;">🎉 당첨! 🎉</p>
+    <p style="font-size:80px;font-weight:900;color:${color};text-shadow:0 4px 24px rgba(0,0,0,.5);line-height:1.1;">${name}</p>
+  </div>`;
+  document.body.appendChild(el);
+  setTimeout(()=>{el.style.opacity='0';setTimeout(()=>el.remove(),500);},1000);
+}
+
+function playTick(){
+  try{
+    const ctx=getAudioCtx();
+    const buf=ctx.createBuffer(1,Math.floor(ctx.sampleRate*.025),ctx.sampleRate);
+    const d=buf.getChannelData(0);
+    for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*Math.exp(-i/(ctx.sampleRate*.005));
+    const src=ctx.createBufferSource();src.buffer=buf;
+    const g=ctx.createGain();g.gain.value=.5;
+    src.connect(g);g.connect(ctx.destination);src.start();
+  }catch(e){}
+}
+
+function scheduleTicks(ms){
+  tickTimers.forEach(clearTimeout);tickTimers=[];
+  let elapsed=0,interval=65;
+  while(elapsed<ms-200){
+    const t=elapsed;
+    tickTimers.push(setTimeout(playTick,t));
+    interval=65+(elapsed/ms)*520;
+    elapsed+=interval;
+  }
+}
+
+/* ===== 콘페티 ===== */
+function launchConfetti(){
+  const cv=document.createElement('canvas');
+  cv.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:9999;';
+  cv.width=window.innerWidth;cv.height=window.innerHeight;
+  document.body.appendChild(cv);
+  const ctx=cv.getContext('2d');
+  const colors=['#F2994A','#56CCF2','#BB6BD9','#6FCF97','#F2C94C','#EB5757','#fff','#185FA5'];
+  const pts=[];
+  for(let i=0;i<150;i++){
+    pts.push({
+      x:Math.random()*cv.width,y:-20-Math.random()*300,
+      w:6+Math.random()*8,h:3+Math.random()*5,
+      color:colors[i%colors.length],
+      vx:(Math.random()-.5)*4,vy:2+Math.random()*4,
+      rot:Math.random()*Math.PI*2,rv:(Math.random()-.5)*.18,
+      gravity:.06,
+    });
+  }
+  const start=Date.now();
+  function draw(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    pts.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;p.vy+=p.gravity;p.rot+=p.rv;
+      if(p.y>cv.height)return;
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);
+      ctx.fillStyle=p.color;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+      ctx.restore();
+    });
+    if(Date.now()-start<3000)requestAnimationFrame(draw);
+    else cv.remove();
+  }
+  draw();
+}
+
+/* ===== 관리자 ===== */
+function tryAdmin(){
+  const v=document.getElementById('apw').value;
+  if(v===ADMIN_PW){document.getElementById('apw').value='';document.getElementById('aerr').style.display='none';loadAdmin();goTo('admin-panel');}
+  else document.getElementById('aerr').style.display='block';
+}
+function loadAdmin(){
+  document.getElementById('ans-inp').value=getAns();
+  editRows=JSON.parse(JSON.stringify(getProd()));
+  renderProdRows();
+  recalcSum();
+  document.getElementById('smsg').style.display='none';
+  renderLog();
+}
+
+function addProdRow(){
+  editRows.push({name:`상품${editRows.length+1}`,prob:0,qty:5});
+  renderProdRows();recalcSum();
+}
+function delProdRow(i){
+  if(editRows.length<=1)return;
+  editRows.splice(i,1);
+  renderProdRows();recalcSum();
+}
+function syncRowToData(i){
+  const n=document.querySelector(`[data-f="name"][data-i="${i}"]`);
+  const p=document.querySelector(`[data-f="prob"][data-i="${i}"]`);
+  const q=document.querySelector(`[data-f="qty"][data-i="${i}"]`);
+  if(n)editRows[i].name=n.value.trim()||`상품${i+1}`;
+  if(p)editRows[i].prob=parseFloat(p.value)||0;
+  if(q)editRows[i].qty=parseInt(q.value)||0;
+}
+
+function renderProdRows(){
+  const cont=document.getElementById('prod-rows');
+  cont.innerHTML='';
+  editRows.forEach((p,i)=>{
+    const row=document.createElement('div');
+    row.className='prow';
+    row.innerHTML=`
+      <span class="swatch" style="background:${palColor(i)};"></span>
+      <input class="inp" data-f="name" data-i="${i}" value="${p.name.replace(/"/g,'&quot;')}" style="text-align:left;" oninput="editRows[${i}].name=this.value">
+      <input class="inp" type="number" min="0" max="100" data-f="prob" data-i="${i}" value="${p.prob}" oninput="editRows[${i}].prob=parseFloat(this.value)||0;recalcSum()">
+      <input class="inp" type="number" min="0" data-f="qty" data-i="${i}" value="${p.qty}" oninput="editRows[${i}].qty=parseInt(this.value)||0">
+      <button class="del-row-btn" onclick="delProdRow(${i})" title="삭제">×</button>`;
+    cont.appendChild(row);
+  });
+}
+
+function recalcSum(){
+  const sum=Math.round(editRows.reduce((a,p)=>a+p.prob,0)*10)/10;
+  const el=document.getElementById('psum');
+  el.textContent=sum+'%';
+  el.style.color=(sum===100)?'#3B6D11':'#E24B4A';
+  return sum;
+}
+function saveAdmin(){
+  const sum=recalcSum();
+  if(sum!==100){document.getElementById('perr').style.display='block';return;}
+  document.getElementById('perr').style.display='none';
+  try{localStorage.setItem(K_ANS,document.getElementById('ans-inp').value.trim()||DEF_ANS);}catch(e){}
+  saveProd(editRows);
+  document.getElementById('smsg').style.display='block';
+}
+function renderLog(){
+  const log=getLog();
+  const wrap=document.getElementById('log-wrap');
+  if(!log.length){wrap.innerHTML='<p style="font-size:13px;color:#aaa;padding:8px 4px;">아직 기록이 없습니다.</p>';return;}
+  let html='<table class="log-table"><thead><tr><th>시간</th><th>당첨 상품</th><th>오답</th></tr></thead><tbody>';
+  [...log].reverse().forEach(r=>{html+=`<tr><td>${r.time}</td><td style="font-weight:600;">${r.prize}</td><td style="color:${r.wrong?'#E24B4A':'#888'};">${r.wrong??'-'}회</td></tr>`;});
+  html+='</tbody></table>';
+  wrap.innerHTML=html;
+}
+
+/* ===== 학생 ===== */
+function initSt(){
+  wrongCount=0;
+  document.getElementById('ans-field').value='';
+  document.getElementById('st-err').style.display='none';
+  document.getElementById('wrong-count').style.display='none';
+}
+function checkAns(){
+  try{getAudioCtx();}catch(e){}
+  const v=document.getElementById('ans-field').value;
+  if(norm(v)===norm(getAns())){
+    wrongCount=0;
+    playFanfare();launchConfetti();goTo('unlocked');
+  }else{
+    wrongCount++;
+    playBuzzer();
+    document.getElementById('st-err').style.display='block';
+    const wc=document.getElementById('wrong-count');
+    wc.textContent=`오답 ${wrongCount}회`;
+    wc.style.display='block';
+  }
+}
+
+/* ===== 룰렛 ===== */
+function drawWheel(){
+  spinning=false;
+  document.getElementById('spin-btn').style.display='';
+  document.getElementById('spin-btn').disabled=false;
+  document.getElementById('again-btn').style.display='none';
+  document.getElementById('result-box').innerHTML='<p style="font-size:14px;color:#888;">버튼을 눌러 돌려보세요!</p>';
+
+  const prod=getProd();
+  activeProd=prod.map((p,i)=>({...p,idx:i})).filter(p=>p.qty>0);
+
+  const wheel=document.getElementById('wheel');
+  wheel.style.transition='none';
+  wheel.style.transform='rotate(0deg)';
+  curRot=0;
+
+  if(activeProd.length===0){
+    wheel.style.background='#ddd';wheel.innerHTML='';
+    document.getElementById('spin-btn').disabled=true;
+    document.getElementById('result-box').innerHTML='<p style="font-size:16px;font-weight:600;color:#A32D2D;">남은 상품이 없어요 😢</p>';
+    renderStock();return;
+  }
+
+  const sumP=activeProd.reduce((a,p)=>a+p.prob,0)||1;
+  let acc=0,parts=[],labels='';
+  activeProd.forEach(p=>{
+    const start=acc/sumP*360;acc+=p.prob;
+    const end=acc/sumP*360;
+    p._start=start;p._end=end;p._mid=(start+end)/2;
+    parts.push(`${palColor(p.idx)} ${start}deg ${end}deg`);
+    const sc=p._mid-90;
+    labels+=`<div class="wlabel" style="transform:rotate(${sc}deg) translateX(115px) rotate(${-sc}deg);"><span>${p.name}</span></div>`;
+  });
+  wheel.style.background=`conic-gradient(from 0deg,${parts.join(',')})`;
+  wheel.innerHTML=activeProd.length===1
+    ?`<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);"><span style="font-size:16px;font-weight:700;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.4);">${activeProd[0].name}</span></div>`
+    :labels;
+  renderStock();
+}
+
+function renderStock(){
+  const prod=getProd();
+  let html='';
+  prod.forEach((p,i)=>{
+    const z=p.qty===0;
+    html+=`<tr style="${z?'opacity:.4':''}">
+      <td><span class="swatch" style="background:${palColor(i)};margin-right:6px;"></span>${p.name}</td>
+      <td style="text-align:right;font-weight:600;color:${z?'#bbb':p.qty<=2?'#E24B4A':'#111'};">${p.qty}</td>
+    </tr>`;
+  });
+  document.getElementById('stock-body').innerHTML=html;
+}
+
+function weightedPick(){
+  const sumP=activeProd.reduce((a,p)=>a+p.prob,0)||1;
+  let r=Math.random()*sumP,acc=0;
+  for(const p of activeProd){acc+=p.prob;if(r<=acc)return p;}
+  return activeProd[activeProd.length-1];
+}
+
+function spin(){
+  if(spinning||activeProd.length===0)return;
+  spinning=true;
+  document.getElementById('spin-btn').disabled=true;
+  document.getElementById('result-box').innerHTML='<p style="font-size:15px;color:#555;">두근두근... 🎲</p>';
+
+  const winner=weightedPick();
+  const jitter=(Math.random()-.5)*(winner._end-winner._start)*.7;
+  const target=360*6-winner._mid-jitter;
+  const SPIN_MS=4200;
+  scheduleTicks(SPIN_MS);
+
+  const wheel=document.getElementById('wheel');
+  void wheel.offsetWidth;
+  wheel.style.transition=`transform ${SPIN_MS}ms cubic-bezier(.17,.67,.2,1)`;
+  wheel.style.transform=`rotate(${target}deg)`;
+
+  setTimeout(()=>{
+    const prod=getProd();
+    if(prod[winner.idx]) prod[winner.idx].qty=Math.max(0,prod[winner.idx].qty-1);
+    saveProd(prod);
+    addLog(winner.name);
+    // 확률 가장 낮은 상품이면 슈퍼 팡파레
+    const minProb=Math.min(...activeProd.map(p=>p.prob));
+    if(winner.prob===minProb && activeProd.length>1) playSuperFanfare();
+    else playFanfare();
+    launchConfetti();
+    showBigWin(winner.name, palColor(winner.idx));
+    document.getElementById('result-box').innerHTML=
+      `<p style="font-size:13px;color:#888;">축하합니다! 🎉</p>`+
+      `<p style="font-size:28px;font-weight:800;color:${palColor(winner.idx)};">${winner.name}</p>`;
+    document.getElementById('again-btn').style.display='';
+    spinning=false;
+    renderStock();
+  },SPIN_MS+200);
+}
+
+function nextRound(){
+  spinCount++;
+  if(spinCount>=4){
+    if(!confirm(`${spinCount}번째 룰렛입니다. 돌릴까요?`)){spinCount--;return;}
+  }
+  drawWheel();
+}
+</script>
+</body>
+</html>
