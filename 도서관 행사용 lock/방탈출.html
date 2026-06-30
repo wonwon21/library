@@ -122,7 +122,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic',san
   <div style="position:relative;z-index:2;background:rgba(255,255,255,0.93);border-radius:24px;padding:2.2rem 3rem;display:flex;flex-direction:column;align-items:center;gap:1.1rem;box-shadow:0 8px 32px rgba(0,0,0,0.28);max-width:540px;width:90%;">
     <i class="ti ti-lock" style="font-size:48px;color:#378ADD;"></i>
     <p style="font-size:25px;font-weight:700;color:#111;">암호를 입력하세요</p>
-    <input id="ans-field" class="inp" autocomplete="off" style="font-size:24px;text-align:center;font-weight:700;letter-spacing:5px;padding:15px;-webkit-text-security:disc;" placeholder="" oninput="checkImeHint()" onkeydown="if(event.key==='Enter')checkAns()">
+    <input id="ans-field" class="inp" autocomplete="off" style="font-size:24px;text-align:center;font-weight:700;letter-spacing:5px;padding:15px;-webkit-text-security:disc;" placeholder="" oninput="checkImeHint(event)" onkeydown="if(event.key==='Enter')checkAns()">
     <p id="ime-hint" style="font-size:14px;font-weight:700;color:#E24B4A;display:none;">⚠️ 한/영 키를 눌러 한글로 입력하세요!</p>
     <p style="font-size:13px;color:#888;">7권의 책 제목 첫 글자 · 띄어쓰기 자동 무시</p>
     <p id="st-err" style="font-size:15px;color:#E24B4A;display:none;">앗, 틀렸어요! 다시 생각해볼까요? 🤔</p>
@@ -413,9 +413,14 @@ function initSt(){
   document.getElementById('wrong-count').style.display='none';
   document.getElementById('ime-hint').style.display='none';
 }
-function checkImeHint(){
+function checkImeHint(e){
+  const el=document.getElementById('ans-field');
+  // 띄어쓰기는 점(●)으로 표시되지 않게 입력에서 공백 제거 (한글 조합 중에는 건드리지 않음)
+  if(!(e && e.isComposing) && /\s/.test(el.value)){
+    el.value=el.value.replace(/\s/g,'');
+  }
   // 정답이 한글인데 입력에 영문이 섞이면 한/영 키 안내 (점으로 가려도 글자 종류만 감지)
-  const v=document.getElementById('ans-field').value;
+  const v=el.value;
   const ansHasLatin=/[a-zA-Z]/.test(getAns());
   const inHasLatin=/[a-zA-Z]/.test(v);
   document.getElementById('ime-hint').style.display=(!ansHasLatin && inHasLatin)?'block':'none';
