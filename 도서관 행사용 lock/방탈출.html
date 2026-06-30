@@ -389,11 +389,27 @@ function recalcSum(){
 }
 function saveAdmin(){
   const sum=recalcSum();
-  if(sum!==100){document.getElementById('perr').style.display='block';return;}
-  document.getElementById('perr').style.display='none';
-  try{localStorage.setItem(K_ANS,document.getElementById('ans-inp').value.trim()||DEF_ANS);}catch(e){}
-  saveProd(editRows);
-  document.getElementById('smsg').style.display='block';
+  const smsg=document.getElementById('smsg');
+  let stored=true;
+  // 정답은 룰렛 확률과 무관 — 항상 저장
+  try{localStorage.setItem(K_ANS,document.getElementById('ans-inp').value.trim()||DEF_ANS);}catch(e){stored=false;}
+  // 룰렛 상품은 확률 합이 100%일 때만 저장
+  if(sum===100){
+    document.getElementById('perr').style.display='none';
+    try{localStorage.setItem(K_PROD,JSON.stringify(editRows));}catch(e){stored=false;}
+  }else{
+    document.getElementById('perr').style.display='block';
+  }
+  // 저장소가 막혀 실제로 저장되지 않았으면 솔직하게 알림
+  if(!stored){
+    smsg.style.color='#E24B4A';
+    smsg.textContent='✗ 저장 실패: 브라우저 저장소가 꺼져 있어요. 시크릿 모드/미리보기 창이면 일반 브라우저 탭에서 열어주세요.';
+    smsg.style.display='block';
+    return;
+  }
+  smsg.style.color='#3B6D11';
+  smsg.textContent=(sum===100)?'✓ 저장 완료!':'✓ 정답 저장됨 (단, 룰렛 확률 합이 100%가 아니라 상품은 저장 안 됨)';
+  smsg.style.display='block';
 }
 function renderLog(){
   const log=getLog();
