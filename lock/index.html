@@ -3,7 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>도서관 방탈출</title>
+<script>
+/* 자동 업데이트: 새 버전 배포 시 캐시를 지우지 않아도 자동으로 최신 버전을 불러옴 */
+const APP_VERSION='20260630-3';
+(function(){
+  try{
+    fetch('ver.txt?_='+Date.now(),{cache:'no-store'})
+      .then(function(r){return r.ok?r.text():null;})
+      .then(function(t){
+        if(!t)return;
+        var latest=t.trim();
+        if(latest && latest!==APP_VERSION){
+          var k='ver_reloaded_'+latest;            // 같은 버전엔 한 번만 새로고침 (무한루프 방지)
+          if(!sessionStorage.getItem(k)){
+            sessionStorage.setItem(k,'1');
+            location.replace(location.pathname+'?v='+encodeURIComponent(latest));
+          }
+        }
+      }).catch(function(){});
+  }catch(e){}
+})();
+</script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.7.0/dist/tabler-icons.min.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
