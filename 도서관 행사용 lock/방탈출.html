@@ -63,7 +63,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic',san
 <div id="admin-login" class="screen" style="flex-direction:column;align-items:center;justify-content:center;gap:1rem;padding:2rem;">
   <div class="card" style="padding:2rem;display:flex;flex-direction:column;gap:14px;width:100%;max-width:360px;">
     <p style="font-size:19px;font-weight:600;color:#111;">선생님 로그인</p>
-    <input id="apw" type="password" class="inp" placeholder="관리자 비밀번호" onkeydown="if(event.key==='Enter')tryAdmin()">
+    <input id="apw" type="password" class="inp" autocomplete="off" placeholder="관리자 비밀번호" onkeydown="if(event.key==='Enter')tryAdmin()">
     <p id="aerr" style="font-size:13px;color:#E24B4A;display:none;">비밀번호가 틀렸습니다.</p>
     <div style="display:flex;gap:10px;">
       <button class="nb" style="flex:1;" onclick="goTo('home')">취소</button>
